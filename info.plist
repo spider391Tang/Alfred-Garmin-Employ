@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>bundleid</key>
+	<string>com.quincy.FindEmploy</string>
+	<key>category</key>
+	<string>Tools</string>
+	<key>connections</key>
+	<dict>
+		<key>0A7F94DA-8824-4BEA-892C-25D9882A4143</key>
+		<array/>
+	</dict>
+	<key>createdby</key>
+	<string>TangQuicny</string>
+	<key>description</key>
+	<string>Find phone number by Id</string>
+	<key>disabled</key>
+	<false/>
+	<key>name</key>
+	<string>Garmin Employ</string>
+	<key>objects</key>
+	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>0</integer>
+				<key>escaping</key>
+				<integer>127</integer>
+				<key>keyword</key>
+				<string>employ</string>
+				<key>queuedelaycustom</key>
+				<integer>3</integer>
+				<key>queuedelayimmediatelyinitially</key>
+				<false/>
+				<key>queuedelaymode</key>
+				<integer>0</integer>
+				<key>queuemode</key>
+				<integer>1</integer>
+				<key>runningsubtext</key>
+				<string>Employ searching</string>
+				<key>script</key>
+				<string>php -f employ.php -- "{query}"</string>
+				<key>subtext</key>
+				<string>Showing the upcoming phone number</string>
+				<key>title</key>
+				<string>Find Garmin employ phone number by Id</string>
+				<key>type</key>
+				<integer>0</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>0A7F94DA-8824-4BEA-892C-25D9882A4143</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+	</array>
+	<key>readme</key>
+	<string></string>
+	<key>uidata</key>
+	<dict>
+		<key>0A7F94DA-8824-4BEA-892C-25D9882A4143</key>
+		<dict>
+			<key>ypos</key>
+			<real>150</real>
+		</dict>
+	</dict>
+	<key>webaddress</key>
+	<string></string>
+</dict>
+</plist>
