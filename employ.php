@@ -1,34 +1,56 @@
 <?php
-
 require_once('workflows.php');
 $w = new Workflows();
+
+// Employ ID from input
 $query = trim($argv[1]);
-// echo "<p> query is: ".$query."</p>";
+
+
 
 $url = "http://biz.garmin.com.tw/introduction/index_tw.asp";
-$post_data['cboEmpID1'] = $query;
+
+// Hack to access the 'Garmin Introduction' cookie
+$session_name = "ASPSESSIONIDAQTRCBRA";
+$session_value = "";
+
+$homepage = file_get_contents('/Users/spider391tang/Library/Application Support/Firefox/Profiles/8xd2azir.default/sessionstore-backups/recovery.js');
+$items = json_decode( $homepage );
+
+foreach( $items->windows[0]->cookies as $cn ):
+    if ( trim( $cn->name ) == $session_name ):
+        $session_value = $cn->value;
+        break;
+    endif;
+endforeach;
+
+// print_r( $session_value );
+
 $fields = array
     ( 
         CURLOPT_POSTFIELDS => "WorkType=5&cboEmpID1=$query",
-        CURLOPT_COOKIE => "PassportEmpID=12001; utag_main=_st:1428654950024$ses_id:1428653893960%3Bexp-session; _ga=GA1.3.1341607043.1428653150; ASPSESSIONIDCSBDSAAS=BPKPAILDNFNLGHNPHCLKFJJE; BIGipServerQS9000_pool=167804938.20480.0000; ASPSESSIONIDCSBCTAAS=EMPBPDIAHPMKHPGEGPCDFGIN; ASPSESSIONIDCQTSABQB=JAOPNDIAJCCPJPKFPFIFMJOA"
+        CURLOPT_COOKIE => "$session_name=$session_value; BIGipServerQS9000_pool=167804938.20480.0000"
     );
-$weather = $w->request( $url, $fields );
 
+$result = $w->request( $url, $fields );
+// print_r( $result );
+preg_match('/分機號碼...([0-9]+)/', $result, $matches_phone);
+preg_match('/ORG...(.+?)<\/li>/', $result, $matches_org);
+preg_match('/部門...(.+?)\s+<li>/', $result, $matches_dep);
+$rtn = preg_match('/名字...<font color=blue>(.*?)<\/font>/', $result, $matches_name);
 
-// $findme = '分機號碼';
-// $pos = strpos($weather, $findme);
-// 
-// if ($pos === false) {
-//     echo "The string '$findme' was not found in the string";
-// } else {
-//     echo "The string '$findme' was found in the string";
-//     echo " and exists at position $pos";
-// }
+$employ_info = $matches_name[1] . " " . $matches_org[1] . " - " . $matches_phone[1] . " " . $matches_dep[1];
 
-preg_match('/分機號碼...([0-9]+)/', $weather, $matches);
-// echo "number is : ".$matches[1]; 
+if( $rtn == 1 and !file_exists( "images/$query.jpg" ) ):
+    // download image
+    $image_url = "http://10.128.0.10/engineers/images/$query.jpg";
+    $ch = curl_init( $image_url );
+    $fp = fopen("images/$query.jpg", 'wb');
+    curl_setopt($ch, CURLOPT_FILE, $fp);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_exec($ch);
+    curl_close($ch);
+    fclose($fp);
+endif;
 
-
-	//uasort( $w->results(), 'date_sort' );
-$w->result( 'employId', $query, $matches[1], '', 'icon.png', 'yes', 'autocomplete' );
+$w->result( 'employ', $query, $employ_info, '', "images/$query.jpg", 'yes', 'autocomplete' );
 echo $w->toxml();

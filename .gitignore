@@ -31,6 +31,10 @@
 *.swp
 *.swo
 *.swn
+*.swj
+*.swk
+*.swl
+*.swm
 
 # mac temp files
 .DS_Store
