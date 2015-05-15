@@ -35,6 +35,19 @@
 *.swk
 *.swl
 *.swm
+*.svz
+*.swa
+*.swb
+*.swc
+*.swd
+*.swe
+*.swf
+*.swg
+*.swh
+*.swi
 
 # mac temp files
 .DS_Store
+
+
+images/*.jpg
