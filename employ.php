@@ -109,7 +109,9 @@ foreach( $table->find('tr') as $tr )
             curl_close($ch);
             fclose($fp);
         }
-        $w->result( 'employ', $query, $employ_info, '', "images/$employ_id.jpg", 'yes', $employ_name );
+        $path = $w->path();
+        // http://alfredworkflow.readthedocs.org/en/latest/xml_format.html#param-type
+        $w->result( 'employ', "$path/images/$employ_id.jpg", $employ_info, '', "images/$employ_id.jpg", 'yes', $employ_name, 'file' );
     }
 }
 
