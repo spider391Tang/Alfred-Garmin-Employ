@@ -2,6 +2,10 @@
 require_once('workflows.php');
 require_once('simple_html_dom.php');
 
+
+// icons
+$login_icon = "login.png";
+
 $w = new Workflows();
 
 // Employ info from input
@@ -9,7 +13,7 @@ $query = trim( $argv[1] );
 
 if( strlen( $query ) < 3 )
 {
-    return;
+    exit;
 }
 
 $url = "http://biz.garmin.com.tw/introduction/index_tw.asp";
@@ -55,6 +59,13 @@ foreach( $session_bak_array->windows as $window )
     }
 }
 
+if( !$cookie_found )
+{
+    $w->result( 'employ', 'na', 'You should login first', 'Just press enter to login', $login_icon, 'yes' );
+    echo $w->toxml();
+    exit;
+}
+
 $query_fields = "";
 
 if( is_numeric( $query ) )
@@ -88,11 +99,11 @@ foreach( $table->find('tr') as $tr )
     if( isset( $aa ) )
     {
         $em = $aa->find('ul', 0 );
-        $employ_name = trim( substr( trim( $em->find( 'li', 0 )->plaintext ), 9 ) ); // 名字:
-        $employ_id = trim( substr( trim( $em->find( 'li', 1 )->plaintext ), 9 ) ); // 工號:
-        $employ_dep = trim( substr( trim( $em->find( 'li', 2 )->plaintext ), 9 ) ); // 部門:
+        $employ_name = trim( substr( trim( $em->find( 'li', 0 )->plaintext ), 9 ) );    // 名字:
+        $employ_id = trim( substr( trim( $em->find( 'li', 1 )->plaintext ), 9 ) );      // 工號:
+        $employ_dep = trim( substr( trim( $em->find( 'li', 2 )->plaintext ), 9 ) );     // 部門:
         $employ_phone = trim( substr( trim( $em->find( 'li', 4 )->plaintext ), 3*5 ) ); // 分機號碼:
-        $employ_org = trim( substr( trim( $em->find( 'li', 5 )->plaintext ), 6 ) ); // 分機號碼:
+        $employ_org = trim( substr( trim( $em->find( 'li', 5 )->plaintext ), 6 ) );     // 分機號碼:
 
         $employ_info = $employ_id . "  " . $employ_name . " " . $employ_org . " - " . $employ_phone . " " . $employ_dep;
         // $employ_info = $employ_name;
@@ -111,7 +122,7 @@ foreach( $table->find('tr') as $tr )
         }
         $path = $w->path();
         // http://alfredworkflow.readthedocs.org/en/latest/xml_format.html#param-type
-        $w->result( 'employ', "$path/images/$employ_id.jpg", $employ_info, '', "images/$employ_id.jpg", 'yes', $employ_name, 'file' );
+        $w->result( 'employ', "$path/images/$employ_id.jpg", $employ_info, '', "images/$employ_id.jpg", 'no', $employ_name, 'file' );
     }
 }
 

@@ -9,7 +9,16 @@
 	<key>connections</key>
 	<dict>
 		<key>0A7F94DA-8824-4BEA-892C-25D9882A4143</key>
-		<array/>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>A90038B8-A246-49EC-8B50-44D2786F453E</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
 	</dict>
 	<key>createdby</key>
 	<string>TangQuicny</string>
@@ -21,23 +30,6 @@
 	<string>Garmin Employ</string>
 	<key>objects</key>
 	<array>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>concurrently</key>
-				<false/>
-				<key>escaping</key>
-				<integer>127</integer>
-				<key>type</key>
-				<integer>0</integer>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.action.script</string>
-			<key>uid</key>
-			<string>2996B163-CB91-4F39-96FE-B97E013C4240</string>
-			<key>version</key>
-			<integer>0</integer>
-		</dict>
 		<dict>
 			<key>config</key>
 			<dict>
@@ -75,6 +67,23 @@
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>plusspaces</key>
+				<false/>
+				<key>url</key>
+				<string>http://biz.garmin.com.tw/introduction/index_tw.asp</string>
+				<key>utf8</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.openurl</string>
+			<key>uid</key>
+			<string>A90038B8-A246-49EC-8B50-44D2786F453E</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
 	</array>
 	<key>readme</key>
 	<string></string>
@@ -83,9 +92,9 @@
 		<key>0A7F94DA-8824-4BEA-892C-25D9882A4143</key>
 		<dict>
 			<key>ypos</key>
-			<real>150</real>
+			<real>10</real>
 		</dict>
-		<key>2996B163-CB91-4F39-96FE-B97E013C4240</key>
+		<key>A90038B8-A246-49EC-8B50-44D2786F453E</key>
 		<dict>
 			<key>ypos</key>
 			<real>10</real>
