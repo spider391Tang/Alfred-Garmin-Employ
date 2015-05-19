@@ -6,10 +6,16 @@ require_once('simple_html_dom.php');
 // icons
 $login_icon = "login.png";
 
+// STATUS: ID, NAME, RANGE_ID
+$status = "ID";
+
+
 $w = new Workflows();
 
 // Employ info from input
 $query = trim( $argv[1] );
+
+
 
 if( strlen( $query ) < 3 )
 {
@@ -70,10 +76,19 @@ $query_fields = "";
 
 if( is_numeric( $query ) )
 {
+    $status = "ID";
     $query_fields =  "WorkType=5&cboEmpID1=$query"; 
 } 
+else if( strpos( $query, '<' ) !== FALSE )
+{
+    $status = "RANGE_ID";
+    $id = substr( $query, 0, -1 );
+    $end_id = intval( $id ) + 50;
+    $query_fields =  "WorkType=5&cboEmpID1=$query&cboEmpID2=$end_id"; 
+}
 else
 {
+    $status = "NAME";
     $query_fields = "WorkType=6&cboEmpName=$query";
 }
 
