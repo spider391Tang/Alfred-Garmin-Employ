@@ -15,13 +15,72 @@ $w = new Workflows();
 // Employ info from input
 $query = trim( $argv[1] );
 
-
-
 if( strlen( $query ) < 3 )
 {
     exit;
 }
 
+
+// Leave office today
+date_default_timezone_set('UTC');
+const LEAVE_OFFICE_CACHE_LIFE = '600';
+$leave_office_url = "http://prod.garmin.com.tw/PyrWeb2/attendance/qryindirectorytoday.asp";
+$leave_office_file = "leave_office.html";
+if ( !file_exists( $leave_office_file ) or ( time() - filectime( $leave_office_file ) >= LEAVE_OFFICE_CACHE_LIFE  ) )
+{
+    passthru("curl -d ORG_CODE=ALL --output $leave_office_file $leave_office_url");
+}
+
+$leave_office_html = file_get_html( $leave_office_file );
+// echo $leave_office_html;
+
+$leave_arr;
+const LEAVE_ASK = 0;
+const LEAVE_OUT = 1;
+// 請假列表
+$leave_hr = $leave_office_html->find( 'hr', 0 );
+
+foreach( $leave_hr->find('table') as $t )
+{
+    foreach( $t->find('tr') as $tr )
+    {
+        $id = trim( $tr->find( 'td', 3 )->plaintext );
+        $end_time = trim( $tr->find( 'td', 8 )->plaintext );
+        if( is_numeric( $id ) and is_numeric( $end_time ) )
+        {
+            $start_date = substr( trim( $tr->find( 'td', 5 )->plaintext ), 4 );   // 20150608 => 0608
+            $start_time = trim( $tr->find( 'td', 6 )->plaintext );
+            $end_date = substr( trim( $tr->find( 'td', 7 )->plaintext ), 4 );
+            if( strcmp( $start_date, $end_date ) == 0  )
+            {
+                $leave_arr[$id] = [ LEAVE_ASK, $start_time . "-" . $end_time ];
+            }
+            else
+            {
+                $leave_arr[$id] = [ LEAVE_ASK, $start_date . $start_time . "-" . $end_date . $end_time ];
+            }
+        }
+    }
+}
+
+// 公出列表
+$out_hr = $leave_office_html->find( 'hr', 1 );
+
+foreach( $out_hr->find('table') as $t )
+{
+    foreach( $t->find('tr') as $tr )
+    {
+        $id = trim( $tr->find( 'td', 3 )->plaintext );
+        $reason = trim( $tr->find( 'td', 9 )->plaintext );
+        // echo $reason;
+        if( is_numeric( $id ) )
+        {
+            $leave_arr[$id] = [ LEAVE_OUT, $reason ];
+        }
+    }
+}
+
+// Employee search
 $url = "http://biz.garmin.com.tw/introduction/index_tw.asp";
 
 // Hack to access the 'Garmin Introduction' cookie
@@ -84,7 +143,7 @@ else if( strpos( $query, '<' ) !== FALSE )
     $status = "RANGE_ID";
     $id = substr( $query, 0, -1 );
     $end_id = intval( $id ) + 50;
-    $query_fields =  "WorkType=5&cboEmpID1=$query&cboEmpID2=$end_id"; 
+    $query_fields =  "WorkType=5&cboEmpID1=$id&cboEmpID2=$end_id"; 
 }
 else
 {
@@ -118,9 +177,29 @@ foreach( $table->find('tr') as $tr )
         $employ_id = trim( substr( trim( $em->find( 'li', 1 )->plaintext ), 9 ) );      // 工號:
         $employ_dep = trim( substr( trim( $em->find( 'li', 2 )->plaintext ), 9 ) );     // 部門:
         $employ_phone = trim( substr( trim( $em->find( 'li', 4 )->plaintext ), 3*5 ) ); // 分機號碼:
-        $employ_org = trim( substr( trim( $em->find( 'li', 5 )->plaintext ), 6 ) );     // 分機號碼:
+        $employ_org = trim( substr( trim( $em->find( 'li', 5 )->plaintext ), 6 ) );     // 廠別:
 
-        $employ_info = $employ_id . "  " . $employ_name . " " . $employ_org . " - " . $employ_phone . " " . $employ_dep;
+        // $employ_info = $employ_id . "" . $employ_name . "" . $employ_org . "-" . $employ_phone . "" . $employ_dep;
+        $employ_info = $employ_name . "" . $employ_org . "-" . $employ_phone . " " . $employ_dep;
+        if( !is_numeric( $query ) )
+        {
+            $employ_info = substr_replace( $employ_info, $employ_id, 0, 0 );
+        }
+
+        if( array_key_exists( $employ_id, $leave_arr ) )
+        {
+            $reason = "";
+            if( $leave_arr[$employ_id][0] == LEAVE_ASK )
+            {
+                $reason = "請假";
+            }
+            else
+            {
+                $reason = "公出";
+            }
+            $employ_info = substr_replace( $employ_info, "(" . $reason . ":" . $leave_arr[$employ_id][1] . ")", 0, 0 );
+        }
+
         // $employ_info = $employ_name;
         // print_r( $employ_info );
         if( !file_exists( "images/$employ_id.jpg" ) )
