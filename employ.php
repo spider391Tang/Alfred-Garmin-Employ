@@ -20,7 +20,6 @@ if( strlen( $query ) < 3 )
     exit;
 }
 
-
 // Leave office today
 date_default_timezone_set('UTC');
 const LEAVE_OFFICE_CACHE_LIFE = '600';
@@ -32,7 +31,6 @@ if ( !file_exists( $leave_office_file ) or ( time() - filectime( $leave_office_f
 }
 
 $leave_office_html = file_get_html( $leave_office_file );
-// echo $leave_office_html;
 
 $leave_arr;
 const LEAVE_ASK = 0;
@@ -81,7 +79,7 @@ foreach( $out_hr->find('table') as $t )
 }
 
 // Employee search
-$url = "http://biz.garmin.com.tw/introduction/index_tw.asp";
+$url = "http://biz.garmin.com.tw/introduction/index.asp";
 
 // Hack to access the 'Garmin Introduction' cookie
 $host_name = "biz.garmin.com.tw";
@@ -173,11 +171,13 @@ foreach( $table->find('tr') as $tr )
     if( isset( $aa ) )
     {
         $em = $aa->find('ul', 0 );
-        $employ_name = trim( substr( trim( $em->find( 'li', 0 )->plaintext ), 9 ) );    // 名字:
-        $employ_id = trim( substr( trim( $em->find( 'li', 1 )->plaintext ), 9 ) );      // 工號:
-        $employ_dep = trim( substr( trim( $em->find( 'li', 2 )->plaintext ), 9 ) );     // 部門:
-        $employ_phone = trim( substr( trim( $em->find( 'li', 4 )->plaintext ), 3*5 ) ); // 分機號碼:
-        $employ_org = trim( substr( trim( $em->find( 'li', 5 )->plaintext ), 6 ) );     // 廠別:
+        $employ_name = trim( preg_split("/[：:]+/", trim( $em->find( 'li', 0 )->plaintext ) )[1] ); // 名字:
+        $employ_id = trim( preg_split("/[：:]+/", trim( $em->find( 'li', 1 )->plaintext ) )[1] ); // 工號:
+        $employ_dep = trim( preg_split("/[：:]+/", trim( $em->find( 'li', 2 )->plaintext ) )[1] ); // 部門:
+        $employ_phone = trim( preg_split("/[：:]+/", trim( $em->find( 'li', 4 )->plaintext ) )[1] ); // 分機號碼:
+        $employ_org = trim( preg_split("/[：:]+/", trim( $em->find( 'li', 5 )->plaintext ) )[1] ); // 廠別:
+
+        // echo trim( $em->find( 'li', 0 )->plaintext );
 
         // $employ_info = $employ_id . "" . $employ_name . "" . $employ_org . "-" . $employ_phone . "" . $employ_dep;
         $employ_info = $employ_name . "" . $employ_org . "-" . $employ_phone . " " . $employ_dep;
@@ -215,8 +215,10 @@ foreach( $table->find('tr') as $tr )
             fclose($fp);
         }
         $path = $w->path();
+        // echo $employ_
         // http://alfredworkflow.readthedocs.org/en/latest/xml_format.html#param-type
-        $w->result( 'employ', "$path/images/$employ_id.jpg", $employ_info, '', "images/$employ_id.jpg", 'no', $employ_name, 'file' );
+        $w->result( 'employ', "$path/images/$employ_id.jpg", $employ_info, '', "images/$employ_id.jpg", 'no', $employ_name . 'EXT:' . $employ_phone, 'file' );
+        // $w->result( 'employ', "$path/images/$employ_id.jpg", 'hello', '', "images/$employ_id.jpg", 'no', 'hello', 'file' );
     }
 }
 
