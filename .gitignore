@@ -52,3 +52,7 @@
 
 images/*.jpg
 *.html
+
+# python
+*.pyc
+
