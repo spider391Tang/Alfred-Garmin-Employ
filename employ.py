@@ -76,15 +76,15 @@ def parse_html(r):
         # case <font color="blue"><a href="mailto:quincy.tang@garmin.com">唐心磊</a>(Quincy Tang)</font>
         # print employ_xml.contents[0].font
         if not employ_xml.contents[0].font.string:
-            employ['name'] = employ_xml.contents[0].font.contents[1].strip('()')
+            employ['name'] = employ_xml.contents[0].font.contents[1].strip(u'()')
             employ['name_tw'] = employ_xml.contents[0].a.string.strip()
         # <font color="blue">謝玉</font>
-        elif "(" not in employ_xml.contents[0].font:
+        elif u"(" not in employ_xml.contents[0].font.string:
             employ['name'] = ""
             employ['name_tw'] = employ_xml.contents[0].font.string.strip()
         # case <font color="blue">蘇建輝(Kevin Su)</font>
         else:
-            employ['name'] = employ_xml.contents[0].font.string.split(u'(')[1].strip(')')
+            employ['name'] = employ_xml.contents[0].font.string.split(u'(')[1].strip(u')')
             employ['name_tw'] = employ_xml.contents[0].font.string.split(u'(')[0].strip()
         employ['id'] = employ_xml.contents[1].font.string.strip()
         employ['department'] = employ_xml.contents[2].string.split(u'：')[1].strip()
@@ -100,7 +100,7 @@ def main(wf):
     if len(wf.args):
         query = wf.args[0]
     else:
-        query = "yu"
+        query = "jacky"
 
     # Get cookie
     co = wf.cached_data('cookie', get_recent_cookie, max_age=60)
@@ -121,11 +121,16 @@ def main(wf):
         if len(query) < 2:
             return
 
-    r = web.post(url=GARMIN_URL, cookies=co, data=params)
-    r.raise_for_status()
+    def wrapper():
+        """`cached_data` can only take a bare callable (no args),
+        so we need to wrap callables needing arguments in a function
+        that needs none.
+        """
+        r = web.post(url=GARMIN_URL, cookies=co, data=params)
+        r.raise_for_status()
+        return parse_html(r)
 
-    # print co
-    employs = parse_html(r)
+    employs = wf.cached_data(query, wrapper, max_age=6000)
 
     for e in employs:
         fname = e['img'].split('/')[-1]
