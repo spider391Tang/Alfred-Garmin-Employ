@@ -22,9 +22,11 @@ import urllib
 import urllib2
 import urlparse
 import zlib
-from cookielib import CookieJar
+import cookielib
+from ntlm import HTTPNtlmAuthHandler
 
 USER_AGENT = u'Alfred-Workflow/1.19 (+http://www.deanishe.net/alfred-workflow)'
+Cookie = None
 
 # Valid characters for multipart form data boundaries
 BOUNDARY_CHARS = string.digits + string.ascii_letters
@@ -212,8 +214,10 @@ class Response(object):
             self.raw = urllib2.urlopen(request)
         except urllib2.HTTPError as err:
             self.error = err
+            print err
             try:
                 self.url = err.geturl()
+                # print self.url
             # sometimes (e.g. when authentication fails)
             # urllib can't get a URL from an HTTPError
             # This behaviour changes across Python versions,
@@ -510,12 +514,16 @@ def request(method, url, params=None, data=None, headers=None, cookies=None,
         username, password = auth
         password_manager = urllib2.HTTPPasswordMgrWithDefaultRealm()
         password_manager.add_password(None, url, username, password)
-        auth_manager = urllib2.HTTPBasicAuthHandler(password_manager)
+        auth_manager = HTTPNtlmAuthHandler.HTTPNtlmAuthHandler(password_manager)
+        # auth_manager = urllib2.HTTPBasicAuthHandler(password_manager)
         openers.append(auth_manager)
 
     proxy_support = urllib2.ProxyHandler({})
     openers.append(proxy_support)
 
+    if cookies is not None:
+        openers.append(urllib2.HTTPCookieProcessor(cookies))
+    # openers.append(urllib2.HTTPCookieProcessor(cj))
     # Install our custom chain of openers
     opener = urllib2.build_opener(*openers)
     urllib2.install_opener(opener)
@@ -536,10 +544,8 @@ def request(method, url, params=None, data=None, headers=None, cookies=None,
 
     headers['accept-encoding'] = ', '.join(encodings)
 
-    if cookies:
-        headers['Cookie'] = "; ".join([str(x)+"="+str(y) for x,y in cookies.items()])
-
-    # headers['User-Agent'] = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'
+    # if cookies:
+    #     headers['Cookie'] = "; ".join([str(x)+"="+str(y) for x,y in cookies.items()])
 
     # Force POST by providing an empty data string
     if method == 'POST' and not data:

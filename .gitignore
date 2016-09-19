@@ -56,3 +56,4 @@ images/*.jpg
 # python
 *.pyc
 
+cookie.txt

@@ -6,11 +6,14 @@ import sys
 import glob
 import json
 import html5lib
+import cookielib
+from requests.auth import HTTPBasicAuth
 from workflow import Workflow, ICON_WEB, web
 from bs4 import BeautifulSoup
 
 IMG_PATH = u'images'
 GARMIN_URL = 'http://biz.garmin.com.tw/introduction/index.asp'
+COOKIE_NAME = 'cookie.txt'
 
 def get_employ_img(url):
     r = web.get(url=url, stream=True)
@@ -55,11 +58,24 @@ def get_recent_cookie_from(ext):
     cookies[server_name] = server_value
     return cookies
 
-def get_recent_cookie():
-    cookie = get_recent_cookie_from('js')
-    if cookie == None:
-        cookie = get_recent_cookie_from('bak')
+def login_create_cookie():
+    url = "http://passport.garmin.com.tw/passport/login.aspx?Page=http://biz.garmin.com.tw/introduction/index.asp&Qs="
+    r = web.get(url=url, auth=('tangquincy', 'jstall99'))
+    r.raise_for_status()
+    soup = BeautifulSoup(r.text, "html5lib")
+    cookie = cookielib.MozillaCookieJar(COOKIE_NAME)
+    result = web.get(soup.body.a['href'], cookies=cookie)
+    result.raise_for_status()
+    cookie.save(ignore_discard=True, ignore_expires=True)
     return cookie
+
+def get_recent_cookie():
+    if os.path.exists(COOKIE_NAME):
+        cookie = cookielib.MozillaCookieJar()
+        cookie.load(COOKIE_NAME, ignore_discard=True, ignore_expires=True)
+        return cookie
+    else:
+        return login_create_cookie()
 
 def parse_html(r):
     soup = BeautifulSoup(r.text, "html5lib")
@@ -103,14 +119,15 @@ def main(wf):
         query = "jacky"
 
     # Get cookie
-    co = wf.cached_data('cookie', get_recent_cookie, max_age=60)
-    if co == None:
-        wf.add_item(title="You should login first",
-                    subtitle="Press enter to login",
-                    arg=GARMIN_URL,
-                    valid=True,
-                    icon = "login.png")
-        return
+    # co = wf.cached_data('cookie', get_recent_cookie, max_age=1)
+    # if co == None:
+    #     wf.add_item(title="You should login first",
+    #                 subtitle="Press enter to login",
+    #                 arg=GARMIN_URL,
+    #                 valid=True,
+    #                 icon = "login.png")
+    #     return
+    co = get_recent_cookie()
 
     # params = dict(WorkType='5', cboEmpID1='12001')
     params = {}
@@ -130,7 +147,7 @@ def main(wf):
         r.raise_for_status()
         return parse_html(r)
 
-    employs = wf.cached_data(query, wrapper, max_age=6000)
+    employs = wf.cached_data(query, wrapper, max_age=1)
 
     for e in employs:
         fname = e['img'].split('/')[-1]
