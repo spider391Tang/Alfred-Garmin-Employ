@@ -7,13 +7,14 @@ import glob
 import json
 import html5lib
 import cookielib
-from requests.auth import HTTPBasicAuth
-from workflow import Workflow, ICON_WEB, web
+import argparse
+from workflow import Workflow, ICON_WEB, ICON_WARNING, web, PasswordNotFound
 from bs4 import BeautifulSoup
 
 IMG_PATH = u'images'
 GARMIN_URL = 'http://biz.garmin.com.tw/introduction/index.asp'
 COOKIE_NAME = 'cookie.txt'
+USER_NAME = 'tangquincy'
 
 def get_employ_img(url):
     r = web.get(url=url, stream=True)
@@ -58,9 +59,11 @@ def get_recent_cookie_from(ext):
     cookies[server_name] = server_value
     return cookies
 
-def login_create_cookie():
+def login_create_cookie(wf):
     url = "http://passport.garmin.com.tw/passport/login.aspx?Page=http://biz.garmin.com.tw/introduction/index.asp&Qs="
-    r = web.get(url=url, auth=('tangquincy', 'jstall99'))
+
+    pwd = wf.get_password('employ_password')
+    r = web.get(url=url, auth=(USER_NAME, pwd))
     r.raise_for_status()
     soup = BeautifulSoup(r.text, "html5lib")
     cookie = cookielib.MozillaCookieJar(COOKIE_NAME)
@@ -69,13 +72,13 @@ def login_create_cookie():
     cookie.save(ignore_discard=True, ignore_expires=True)
     return cookie
 
-def get_recent_cookie():
+def get_recent_cookie(wf):
     if os.path.exists(COOKIE_NAME):
         cookie = cookielib.MozillaCookieJar()
         cookie.load(COOKIE_NAME, ignore_discard=True, ignore_expires=True)
         return cookie
     else:
-        return login_create_cookie()
+        return login_create_cookie(wf)
 
 def parse_html(r):
     soup = BeautifulSoup(r.text, "html5lib")
@@ -112,22 +115,50 @@ def parse_html(r):
     return employs
 
 def main(wf):
-    # Get query from Alfred
-    if len(wf.args):
-        query = wf.args[0]
-    else:
-        query = "jacky"
+    # build argument parser to parse script args and collect their
+    # values
+    parser = argparse.ArgumentParser()
+    # add an optional (nargs='?') --setkey argument and save its
+    # value to 'apikey' (dest). This will be called from a separate "Run Script"
+    # action with the API key
+    parser.add_argument('--setkey', dest='apikey', nargs='?', default=None)
+    # add an optional query and save it to 'query'
+    parser.add_argument('query', nargs='?', default=None)
+    # parse the script's arguments
+    args = parser.parse_args(wf.args)
 
-    # Get cookie
-    # co = wf.cached_data('cookie', get_recent_cookie, max_age=1)
-    # if co == None:
-    #     wf.add_item(title="You should login first",
-    #                 subtitle="Press enter to login",
-    #                 arg=GARMIN_URL,
-    #                 valid=True,
-    #                 icon = "login.png")
-    #     return
-    co = get_recent_cookie()
+    ####################################################################
+    # Save the provided API key
+    ####################################################################
+
+    # decide what to do based on arguments
+    if args.apikey:  # Script was passed an API key
+        # save the key
+        # wf.settings['api_key'] = args.apikey
+        wf.save_password('employ_password', args.apikey)
+        return 0  # 0 means script exited cleanly
+
+    ####################################################################
+    # Check that we have an API key saved
+    ####################################################################
+
+    try:
+        api_key = wf.get_password('employ_password')
+    except PasswordNotFound:  # API key has not yet been set
+        wf.add_item('No password set.',
+                    'Please use emaccount to set your password.',
+                    valid=False,
+                    icon=ICON_WARNING)
+        wf.send_feedback()
+        return 0
+
+    # Get query from Alfred
+    if args.query == None:
+        query = "jacky"
+    else:
+        query = args.query
+
+    co = get_recent_cookie(wf)
 
     # params = dict(WorkType='5', cboEmpID1='12001')
     params = {}
@@ -143,11 +174,14 @@ def main(wf):
         so we need to wrap callables needing arguments in a function
         that needs none.
         """
-        r = web.post(url=GARMIN_URL, cookies=co, data=params)
-        r.raise_for_status()
-        return parse_html(r)
+        try:
+            r = web.post(url=GARMIN_URL, cookies=co, data=params)
+            r.raise_for_status()
+            return parse_html(r)
+        except urllib2.HTTPError, err:
+            os.remove(COOKIE_NAME)
 
-    employs = wf.cached_data(query, wrapper, max_age=1)
+    employs = wf.cached_data(query, wrapper, max_age=6000)
 
     for e in employs:
         fname = e['img'].split('/')[-1]
