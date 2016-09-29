@@ -8,56 +8,87 @@ import json
 import html5lib
 import cookielib
 import argparse
-from workflow import Workflow, ICON_WEB, ICON_WARNING, web, PasswordNotFound
+import datetime
+from datetime import datetime
+from workflow import Workflow, ICON_INFO, ICON_WEB, ICON_WARNING, web, PasswordNotFound
 from bs4 import BeautifulSoup
 
 IMG_PATH = u'images'
 GARMIN_URL = 'http://biz.garmin.com.tw/introduction/index.asp'
+GARMIN_LEAVE_URL = 'http://prod.garmin.com.tw/PyrWeb2/attendance/qryindirectorytoday.asp'
 COOKIE_NAME = 'cookie.txt'
 USER_NAME = 'tangquincy'
+
+def get_leave_dict():
+    # Employ leave list
+    r = web.get(url=GARMIN_LEAVE_URL)
+    r.raise_for_status()
+    soup = BeautifulSoup(r.content, "html5lib", from_encoding="utf-8")
+
+    leave_employs = dict()
+    leave_table = soup.find_all('table')[1].find_all('tr')
+    for e in leave_table:
+        eid = e.contents[7].string.strip()
+        if eid.isdigit():
+            eid = int(e.contents[7].string.strip())
+            # print e.contents[9].string
+            # print e.contents[11].string
+            start_date = e.contents[11].string.strip()
+            start_time = e.contents[13].string.strip()
+            start = datetime.strptime(start_date+start_time, '%Y%m%d%H%M')
+            end_date = e.contents[15].string.strip()
+            end_time = e.contents[17].string.strip()
+            end = datetime.strptime(end_date+end_time, '%Y%m%d%H%M')
+            info = dict()
+            info['start'] = start
+            info['end'] = end
+            info['date'] = e.contents[19].string.strip()
+            info['hour'] = e.contents[21].string.strip()
+            info['type'] = u'請假'
+            leave_employs[eid] = info
+
+    business_table = soup.find_all('table')[3].find_all('tr')
+    # print business_table.prettify()
+    for e in business_table:
+        eid = e.contents[7].string.strip()
+        if eid.isdigit():
+            eid = int(e.contents[7].string.strip())
+            info = dict()
+            # print eid
+            start_list = e.contents[13].string.strip().split()
+            end_list = e.contents[15].string.strip().split()
+            start_time = None
+            end_time = None
+            if len(start_list) > 1:
+                if start_list[1] == u'上午':
+                    start_list[1] = u'AM'
+                else:
+                    start_list[1] = u'PM'
+                start_time = datetime.strptime(start_list[0] + start_list[1] + start_list[2], '%Y/%m/%d%p%H:%M:%S')
+            else:
+                start_time = datetime.strptime(start_list[0], '%Y/%m/%d')
+
+            if len(end_list) > 1:
+                if end_list[1] == u'上午':
+                    end_list[1] = u'AM'
+                else:
+                    end_list[1] = u'PM'
+                end_time = datetime.strptime(end_list[0] + end_list[1] + end_list[2], '%Y/%m/%d%p%H:%M:%S')
+            else:
+                end_time = datetime.strptime(end_list[0], '%Y/%m/%d')
+
+            info['start'] = start_time
+            info['end'] = end_time
+            info['peer'] = e.contents[17].string.strip()
+            info['reason'] = e.contents[19].string.strip()
+            info['type'] = u'公出'
+            leave_employs[eid] = info
+    return leave_employs
 
 def get_employ_img(url):
     r = web.get(url=url, stream=True)
     file_name = url.split('/')[-1]
     r.save_to_path(IMG_PATH + "/" + file_name)
-
-def get_recent_cookie_from(ext):
-    CONST_HOSTNAME = "biz.garmin.com.tw"
-    CONST_ASPSESSION_PREFIX = "ASPSESSION"
-    CONST_BIGGIPSERVER_PREFIX = "BIGipServer"
-    session_name = ""
-    session_value = ""
-    server_name = ""
-    server_value = ""
-
-    firefox_profile_path = '/Users/spider391tang/Library/Application Support/Firefox/Profiles'
-    latest_cookie = max(glob.glob(firefox_profile_path  + '/*/*/recovery.' + ext), key=os.path.getctime)
-
-    f = open(latest_cookie)
-    data = json.load(f)
-    cookie_found = False
-    for window in data["windows"]:
-        cookie_found = False
-        for co in window["cookies"]:
-            host = co["host"].strip()
-            name = co["name"].strip()
-            if host.find(CONST_HOSTNAME) != -1 and name.find(CONST_ASPSESSION_PREFIX) != -1:
-                session_name = name
-                session_value = co["value"].strip()
-                cookie_found = True
-
-            if host.find(CONST_HOSTNAME) != -1 and name.find(CONST_BIGGIPSERVER_PREFIX) != -1:
-                server_name = name
-                server_value = co["value"].strip()
-                cookie_found = True
-        if cookie_found:
-            break
-    if not cookie_found:
-        return None
-    cookies = {}
-    cookies[session_name] = session_value
-    cookies[server_name] = server_value
-    return cookies
 
 def login_create_cookie(wf):
     url = "http://passport.garmin.com.tw/passport/login.aspx?Page=http://biz.garmin.com.tw/introduction/index.asp&Qs="
@@ -175,6 +206,9 @@ def main(wf):
         that needs none.
         """
         try:
+            wf.add_item('Getting employ information from server',
+                        valid=False,
+                        icon=ICON_INFO)
             r = web.post(url=GARMIN_URL, cookies=co, data=params)
             r.raise_for_status()
             return parse_html(r)
@@ -182,6 +216,7 @@ def main(wf):
             os.remove(COOKIE_NAME)
 
     employs = wf.cached_data(query, wrapper, max_age=6000)
+    leave_employs = wf.cached_data('leave_table', get_leave_dict, max_age=6000)
 
     for e in employs:
         fname = e['img'].split('/')[-1]
@@ -189,11 +224,31 @@ def main(wf):
             get_employ_img(e['img'])
         title = e['name_tw'] + '(' + e['name'] + ')' + "  Ext:" + e['extno'] + "  ORG:" + e['org']
         subtitle = "ID:" + e['id'] + "  " + e['department'] + " (" + e['title'] + ")"
+
+        leave_description = None
+        modifier_subtitle = dict()
+        if int(e['id']) in leave_employs:
+            leave_employ = leave_employs[int(e['id'])]
+            title = "[" + leave_employ['type'] + "] " + title
+            if 'reason' in leave_employ:
+                leave_description = u'終止日期:' + unicode(leave_employ['end'].strftime("%Y-%m-%d"))
+                leave_description = leave_description + u' 原因:' + leave_employ['reason']
+                if leave_employ['peer'] != "":
+                    leave_description = leave_description + u' 同行:' + leave_employ['peer']
+            else:
+                leave_description = u'終止時間:' + unicode(leave_employ['end'].strftime("%Y-%m-%d %H:%M"))
+                leave_description = leave_description + u' 天數:' + leave_employ['date']
+                leave_description = leave_description + u' 時數:' + leave_employ['hour']
+            modifier_subtitle['alt'] = leave_description
+
         wf.add_item(title=title,
                     subtitle=subtitle,
+                    modifier_subtitles=modifier_subtitle,
                     icon=IMG_PATH + "/" + fname,
                     valid=True,
-                    arg=e['id'])
+                    type='file',
+                    arg=wf.workflowfile(IMG_PATH + "/" + fname))
+                    # arg=e['id'])
     wf.send_feedback()
 
 if __name__ == u"__main__":
