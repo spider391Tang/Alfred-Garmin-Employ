@@ -20,7 +20,9 @@ COOKIE_NAME = 'cookie.txt'
 USER_NAME = 'tangquincy'
 
 def get_leave_dict():
-    # Employ leave list
+    """
+    Parse leave html and return dict about employ leave information.
+    """
     r = web.get(url=GARMIN_LEAVE_URL)
     r.raise_for_status()
     soup = BeautifulSoup(r.content, "html5lib", from_encoding="utf-8")
@@ -86,11 +88,17 @@ def get_leave_dict():
     return leave_employs
 
 def get_employ_img(url):
+    """
+    Download employ image from url and save to IMG_PATH.
+    """
     r = web.get(url=url, stream=True)
     file_name = url.split('/')[-1]
     r.save_to_path(IMG_PATH + "/" + file_name)
 
 def login_create_cookie(wf):
+    """
+    Use account to login and return cookie information.
+    """
     url = "http://passport.garmin.com.tw/passport/login.aspx?Page=http://biz.garmin.com.tw/introduction/index.asp&Qs="
 
     pwd = wf.get_password('employ_password')
@@ -104,6 +112,9 @@ def login_create_cookie(wf):
     return cookie
 
 def get_recent_cookie(wf):
+    """
+    Get cookie if exist or call login_create_cookie to get.
+    """
     if os.path.exists(COOKIE_NAME):
         cookie = cookielib.MozillaCookieJar()
         cookie.load(COOKIE_NAME, ignore_discard=True, ignore_expires=True)
@@ -112,6 +123,19 @@ def get_recent_cookie(wf):
         return login_create_cookie(wf)
 
 def parse_html(r):
+    """
+    Parse employ html and return dict about employ
+
+    title
+    img
+    name
+    name_tw
+    id
+    department
+    costcenter
+    extno
+    org
+    """
     soup = BeautifulSoup(r.text, "html5lib")
     employ_table = soup.find_all('table')[-1].find_all('tr', bgcolor="")
 
