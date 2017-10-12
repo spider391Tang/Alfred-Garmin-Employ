@@ -163,8 +163,8 @@ def parse_html(r):
         employ['id'] = employ_xml.contents[1].font.string.strip()
         employ['department'] = employ_xml.contents[2].string.split(u'：')[1].strip()
         employ['costcenter'] = employ_xml.contents[3].string.split(u':')[1].strip()
-        employ['extno'] = employ_xml.contents[4].string.split(u':')[1].strip()
-        employ['org'] = employ_xml.contents[5].string.split(u':')[1].strip()
+        employ['extno'] = employ_xml.contents[5].string.split(u':')[1].strip()
+        employ['org'] = employ_xml.contents[6].string.split(u':')[1].strip()
         # print employ
         employs.append(employ)
     return employs
