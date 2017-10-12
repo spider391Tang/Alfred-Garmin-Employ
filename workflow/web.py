@@ -117,7 +117,7 @@ class CaseInsensitiveDictionary(dict):
     """
 
     def __init__(self, initval=None):
-
+        """Create new case-insensitive dictionary."""
         if isinstance(initval, dict):
             for key, value in initval.iteritems():
                 self.__setitem__(key, value)
@@ -214,10 +214,8 @@ class Response(object):
             self.raw = urllib2.urlopen(request)
         except urllib2.HTTPError as err:
             self.error = err
-            print err
             try:
                 self.url = err.geturl()
-                # print self.url
             # sometimes (e.g. when authentication fails)
             # urllib can't get a URL from an HTTPError
             # This behaviour changes across Python versions,
@@ -505,7 +503,6 @@ def request(method, url, params=None, data=None, headers=None, cookies=None,
 
     # Default handlers
     openers = []
-
 
     if not allow_redirects:
         openers.append(NoRedirectHandler())

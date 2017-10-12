@@ -1,7 +1,7 @@
 Metadata-Version: 1.1
 Name: Alfred-Workflow
-Version: 1.19
-Summary: Full-featured helper library for writing Alfred 2 workflows
+Version: 1.28.1
+Summary: Full-featured helper library for writing Alfred 2/3 workflows
 Home-page: http://www.deanishe.net/alfred-workflow/
 Author: Dean Jackson
 Author-email: deanishe@deanishe.net
@@ -9,7 +9,7 @@ License: UNKNOWN
 Description: 
         A helper library for writing `Alfred 2 and 3`_ workflows.
         
-        Supports OS X 10.6+ and Python 2.6 and 2.7 (Alfred 3 is 10.9+/2.7 only).
+        Supports macOS 10.6+ and Python 2.6 and 2.7 (Alfred 3 is 10.9+/2.7 only).
         
         Alfred-Workflow is designed to take the grunt work out of writing a workflow.
         
@@ -43,6 +43,7 @@ Description:
         * Set `workflow variables`_ from code
         * Advanced modifiers
         * Alfred 3-only updates (won't break Alfred 2 installs)
+        * Re-running Script Filters
         
         
         Quick Example
