@@ -8,6 +8,8 @@
 	<string>Tools</string>
 	<key>connections</key>
 	<dict>
+		<key>023DF5CA-6267-4284-AFF3-0BF1CC9CAA17</key>
+		<array/>
 		<key>0A7F94DA-8824-4BEA-892C-25D9882A4143</key>
 		<array>
 			<dict>
@@ -61,7 +63,7 @@
 		<array>
 			<dict>
 				<key>destinationuid</key>
-				<string>DBB308DF-7BA1-4636-BE6A-B678A74AA4BE</string>
+				<string>023DF5CA-6267-4284-AFF3-0BF1CC9CAA17</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -83,8 +85,6 @@
 				<false/>
 			</dict>
 		</array>
-		<key>DBB308DF-7BA1-4636-BE6A-B678A74AA4BE</key>
-		<array/>
 	</dict>
 	<key>createdby</key>
 	<string>TangQuicny</string>
@@ -114,44 +114,6 @@
 			<string>E4E08BAA-AE15-45F8-BBBB-C132E5CD855E</string>
 			<key>version</key>
 			<integer>1</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>concurrently</key>
-				<false/>
-				<key>escaping</key>
-				<integer>68</integer>
-				<key>script</key>
-				<string>on run argv
-	set theQuery to item 1 of argv
-	delay 2
-	tell application "Firefox"		activate
-		reopen	
-	end tell
-	
-	tell application "System Events"
-		tell process "Firefox"
-    			keystroke "f" using command down			keystroke "v" using command down
-   			keystroke return
-		end tell
-	end tell
-
-  return theQuery
-end run</string>
-				<key>scriptargtype</key>
-				<integer>1</integer>
-				<key>scriptfile</key>
-				<string></string>
-				<key>type</key>
-				<integer>6</integer>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.action.script</string>
-			<key>uid</key>
-			<string>DBB308DF-7BA1-4636-BE6A-B678A74AA4BE</string>
-			<key>version</key>
-			<integer>2</integer>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -188,6 +150,31 @@ end run</string>
 			<string>CBA75F94-A099-4364-BA27-FEEF7DC76FE9</string>
 			<key>version</key>
 			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>applescript</key>
+				<string>on alfred_script(q)
+	set desiredKeyboard to "美國"	tell application "System Events"		tell application process "SystemUIServer"			tell (first menu bar item of menu bar 1 whose value of attribute "AXDescription" is "text input")				set keyboardWas to its value				perform action "AXPress"				tell menu item desiredKeyboard of menu 1					perform action "AXPress"				end tell			end tell		end tell	end tell
+
+	delay 2
+	tell application "Firefox"
+		tell application "System Events"
+			keystroke "f" using command down 
+			keystroke "v" using command down  	
+		end tell
+	end tell
+end alfred_script</string>
+				<key>cachescript</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.applescript</string>
+			<key>uid</key>
+			<string>023DF5CA-6267-4284-AFF3-0BF1CC9CAA17</string>
+			<key>version</key>
+			<integer>1</integer>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -306,6 +293,13 @@ end run</string>
 	<string></string>
 	<key>uidata</key>
 	<dict>
+		<key>023DF5CA-6267-4284-AFF3-0BF1CC9CAA17</key>
+		<dict>
+			<key>xpos</key>
+			<integer>690</integer>
+			<key>ypos</key>
+			<integer>150</integer>
+		</dict>
 		<key>0A7F94DA-8824-4BEA-892C-25D9882A4143</key>
 		<dict>
 			<key>xpos</key>
@@ -347,13 +341,6 @@ end run</string>
 			<integer>560</integer>
 			<key>ypos</key>
 			<integer>290</integer>
-		</dict>
-		<key>DBB308DF-7BA1-4636-BE6A-B678A74AA4BE</key>
-		<dict>
-			<key>xpos</key>
-			<integer>690</integer>
-			<key>ypos</key>
-			<integer>150</integer>
 		</dict>
 		<key>E4E08BAA-AE15-45F8-BBBB-C132E5CD855E</key>
 		<dict>
