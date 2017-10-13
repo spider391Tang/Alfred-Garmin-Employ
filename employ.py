@@ -10,7 +10,7 @@ import cookielib
 import argparse
 import datetime
 from datetime import datetime
-from workflow import Workflow, ICON_INFO, ICON_WEB, ICON_WARNING, web, PasswordNotFound
+from workflow import Workflow3, ICON_INFO, ICON_WEB, ICON_WARNING, web, PasswordNotFound
 from bs4 import BeautifulSoup
 
 IMG_PATH = u'images'
@@ -250,7 +250,6 @@ def main(wf):
         subtitle = "ID:" + e['id'] + "  " + e['department'] + " (" + e['title'] + ")"
 
         leave_description = None
-        modifier_subtitle = dict()
         if int(e['id']) in leave_employs:
             leave_employ = leave_employs[int(e['id'])]
             title = "[" + leave_employ['type'] + "] " + title
@@ -263,19 +262,19 @@ def main(wf):
                 leave_description = u'終止時間:' + unicode(leave_employ['end'].strftime("%Y-%m-%d %H:%M"))
                 leave_description = leave_description + u' 天數:' + leave_employ['date']
                 leave_description = leave_description + u' 時數:' + leave_employ['hour']
-            modifier_subtitle['alt'] = leave_description
 
-        wf.add_item(title=title,
+        item = wf.add_item(title=title,
                     subtitle=subtitle,
-                    modifier_subtitles=modifier_subtitle,
                     icon=IMG_PATH + "/" + fname,
                     valid=True,
                     type='file',
                     arg=wf.workflowfile(IMG_PATH + "/" + fname))
-                    # arg=e['id'])
+        item.add_modifier( "alt", subtitle=leave_description, arg=e['name_tw'] )
+        item.add_modifier( "ctrl", subtitle=e['id'], arg=e['id'] )
+
     wf.send_feedback()
 
 if __name__ == u"__main__":
-    wf = Workflow()
+    wf = Workflow3()
     sys.exit(wf.run(main))
 

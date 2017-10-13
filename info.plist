@@ -14,7 +14,17 @@
 				<key>destinationuid</key>
 				<string>E4E08BAA-AE15-45F8-BBBB-C132E5CD855E</string>
 				<key>modifiers</key>
-				<integer>0</integer>
+				<integer>262144</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>CBA75F94-A099-4364-BA27-FEEF7DC76FE9</string>
+				<key>modifiers</key>
+				<integer>524288</integer>
 				<key>modifiersubtext</key>
 				<string></string>
 				<key>vitoclose</key>
@@ -47,6 +57,34 @@
 				<false/>
 			</dict>
 		</array>
+		<key>A91E1E8F-CFD9-4081-9C28-3A1E215AD9E4</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>DBB308DF-7BA1-4636-BE6A-B678A74AA4BE</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>CBA75F94-A099-4364-BA27-FEEF7DC76FE9</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>A91E1E8F-CFD9-4081-9C28-3A1E215AD9E4</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>DBB308DF-7BA1-4636-BE6A-B678A74AA4BE</key>
+		<array/>
 	</dict>
 	<key>createdby</key>
 	<string>TangQuicny</string>
@@ -61,8 +99,105 @@
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>browser</key>
+				<string></string>
+				<key>spaces</key>
+				<string></string>
+				<key>url</key>
+				<string>http://biz.garmin.com.tw/introduction/index.asp?cboEmpID1={query}&amp;ORG_CODE=ALL&amp;WorkType=5&amp;Area=TW</string>
+				<key>utf8</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.openurl</string>
+			<key>uid</key>
+			<string>E4E08BAA-AE15-45F8-BBBB-C132E5CD855E</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>concurrently</key>
+				<false/>
+				<key>escaping</key>
+				<integer>68</integer>
+				<key>script</key>
+				<string>on run argv
+	set theQuery to item 1 of argv
+	delay 2
+	tell application "Firefox"		activate
+		reopen	
+	end tell
+	
+	tell application "System Events"
+		tell process "Firefox"
+    			keystroke "f" using command down			keystroke "v" using command down
+   			keystroke return
+		end tell
+	end tell
+
+  return theQuery
+end run</string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>type</key>
+				<integer>6</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>DBB308DF-7BA1-4636-BE6A-B678A74AA4BE</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>browser</key>
+				<string></string>
+				<key>spaces</key>
+				<string></string>
+				<key>url</key>
+				<string>http://prod.garmin.com.tw/PyrWeb2/attendance/qryindirectorytoday.asp</string>
+				<key>utf8</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.openurl</string>
+			<key>uid</key>
+			<string>A91E1E8F-CFD9-4081-9C28-3A1E215AD9E4</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>autopaste</key>
+				<false/>
+				<key>clipboardtext</key>
+				<string>{query}</string>
+				<key>transient</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.clipboard</string>
+			<key>uid</key>
+			<string>CBA75F94-A099-4364-BA27-FEEF7DC76FE9</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
 				<key>alfredfiltersresults</key>
 				<false/>
+				<key>alfredfiltersresultsmatchmode</key>
+				<integer>0</integer>
+				<key>argumenttrimmode</key>
+				<integer>0</integer>
 				<key>argumenttype</key>
 				<integer>0</integer>
 				<key>escaping</key>
@@ -104,19 +239,21 @@
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>browser</key>
-				<string></string>
-				<key>spaces</key>
-				<string></string>
-				<key>url</key>
-				<string>http://biz.garmin.com.tw/introduction/index.asp?cboEmpID1={query}&amp;ORG_CODE=ALL&amp;WorkType=5</string>
-				<key>utf8</key>
+				<key>argumenttype</key>
+				<integer>0</integer>
+				<key>keyword</key>
+				<string>emaccount</string>
+				<key>subtext</key>
+				<string>Enter garmin password</string>
+				<key>text</key>
+				<string>Set your Garmin password</string>
+				<key>withspace</key>
 				<true/>
 			</dict>
 			<key>type</key>
-			<string>alfred.workflow.action.openurl</string>
+			<string>alfred.workflow.input.keyword</string>
 			<key>uid</key>
-			<string>E4E08BAA-AE15-45F8-BBBB-C132E5CD855E</string>
+			<string>95B647E1-400E-41AD-9D2C-DA940D0E19F1</string>
 			<key>version</key>
 			<integer>1</integer>
 		</dict>
@@ -164,27 +301,6 @@
 			<key>version</key>
 			<integer>1</integer>
 		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>argumenttype</key>
-				<integer>0</integer>
-				<key>keyword</key>
-				<string>emaccount</string>
-				<key>subtext</key>
-				<string>Enter garmin password</string>
-				<key>text</key>
-				<string>Set your Garmin password</string>
-				<key>withspace</key>
-				<true/>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.input.keyword</string>
-			<key>uid</key>
-			<string>95B647E1-400E-41AD-9D2C-DA940D0E19F1</string>
-			<key>version</key>
-			<integer>1</integer>
-		</dict>
 	</array>
 	<key>readme</key>
 	<string></string>
@@ -211,6 +327,20 @@
 			<key>ypos</key>
 			<integer>290</integer>
 		</dict>
+		<key>A91E1E8F-CFD9-4081-9C28-3A1E215AD9E4</key>
+		<dict>
+			<key>xpos</key>
+			<integer>520</integer>
+			<key>ypos</key>
+			<integer>150</integer>
+		</dict>
+		<key>CBA75F94-A099-4364-BA27-FEEF7DC76FE9</key>
+		<dict>
+			<key>xpos</key>
+			<integer>350</integer>
+			<key>ypos</key>
+			<integer>150</integer>
+		</dict>
 		<key>CC88D0CC-F70C-4E75-9A82-F9AFE3B2C007</key>
 		<dict>
 			<key>xpos</key>
@@ -218,12 +348,19 @@
 			<key>ypos</key>
 			<integer>290</integer>
 		</dict>
+		<key>DBB308DF-7BA1-4636-BE6A-B678A74AA4BE</key>
+		<dict>
+			<key>xpos</key>
+			<integer>690</integer>
+			<key>ypos</key>
+			<integer>150</integer>
+		</dict>
 		<key>E4E08BAA-AE15-45F8-BBBB-C132E5CD855E</key>
 		<dict>
 			<key>xpos</key>
-			<integer>420</integer>
+			<integer>340</integer>
 			<key>ypos</key>
-			<integer>150</integer>
+			<integer>10</integer>
 		</dict>
 	</dict>
 	<key>webaddress</key>
