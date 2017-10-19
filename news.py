@@ -169,7 +169,6 @@ def main(wf):
                     icon='icon_return.png')
         wf.send_feedback()
 
-
 if __name__ == u"__main__":
     wf = Workflow3()
     sys.exit(wf.run(main))

@@ -33,11 +33,13 @@
 				<false/>
 			</dict>
 		</array>
+		<key>48AF421F-97F6-4F73-905D-9E8D360C9F2C</key>
+		<array/>
 		<key>4DFCA471-2B94-4D7D-8DE9-81E41A1C0C00</key>
 		<array>
 			<dict>
 				<key>destinationuid</key>
-				<string>ADAD01E8-B6A9-434D-8095-71BBCC6B02FB</string>
+				<string>48AF421F-97F6-4F73-905D-9E8D360C9F2C</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -304,6 +306,41 @@ end alfred_script</string>
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>concurrently</key>
+				<false/>
+				<key>escaping</key>
+				<integer>68</integer>
+				<key>script</key>
+				<string>on run
+  set theQuery to "{query}"
+
+  if theQuery as string is not equal to "" then
+	  if theQuery as string is equal to "Back" then    
+		  tell application "Alfred 3" to search "bossmail"
+	  else
+		  tell application "Alfred 3" to search "bossmail " &amp; theQuery
+	  end if
+   end if
+
+  return theQuery
+end run</string>
+				<key>scriptargtype</key>
+				<integer>0</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>type</key>
+				<integer>6</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>48AF421F-97F6-4F73-905D-9E8D360C9F2C</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
 				<key>alfredfiltersresults</key>
 				<false/>
 				<key>alfredfiltersresultsmatchmode</key>
@@ -348,31 +385,6 @@ end alfred_script</string>
 			<key>version</key>
 			<integer>2</integer>
 		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>applescript</key>
-				<string>on alfred_script(q)
-
-if q as string is not equal to "" then
-	if q as string is equal to "Back" then    
-		tell application "Alfred 3" to search "bossmail "
-	else
-		tell application "Alfred 3" to search "bossmail " &amp; q
-	end if
-end if
-
-end alfred_script</string>
-				<key>cachescript</key>
-				<false/>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.action.applescript</string>
-			<key>uid</key>
-			<string>ADAD01E8-B6A9-434D-8095-71BBCC6B02FB</string>
-			<key>version</key>
-			<integer>1</integer>
-		</dict>
 	</array>
 	<key>readme</key>
 	<string></string>
@@ -391,6 +403,13 @@ end alfred_script</string>
 			<integer>120</integer>
 			<key>ypos</key>
 			<integer>150</integer>
+		</dict>
+		<key>48AF421F-97F6-4F73-905D-9E8D360C9F2C</key>
+		<dict>
+			<key>xpos</key>
+			<integer>290</integer>
+			<key>ypos</key>
+			<integer>430</integer>
 		</dict>
 		<key>4DFCA471-2B94-4D7D-8DE9-81E41A1C0C00</key>
 		<dict>
@@ -419,13 +438,6 @@ end alfred_script</string>
 			<integer>520</integer>
 			<key>ypos</key>
 			<integer>150</integer>
-		</dict>
-		<key>ADAD01E8-B6A9-434D-8095-71BBCC6B02FB</key>
-		<dict>
-			<key>xpos</key>
-			<integer>340</integer>
-			<key>ypos</key>
-			<integer>430</integer>
 		</dict>
 		<key>CBA75F94-A099-4364-BA27-FEEF7DC76FE9</key>
 		<dict>
