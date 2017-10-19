@@ -2630,7 +2630,7 @@ class Workflow(object):
             if h:
                 password = unicode(binascii.unhexlify(h), 'utf-8')
 
-        self.logger.debug('Got password : %s:%s:%s', service, account, password)
+        self.logger.debug('Got password : %s:%s', service, account)
 
         return password
 
